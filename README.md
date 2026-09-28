@@ -30,7 +30,7 @@ replaces global rules; `[]` disables them).
   "modelPromptAppend": {
     "rules": [
       {
-        "models": ["*gpt-5.6*", "*gpt-6*"],
+        "models": ["*gpt-6*"],
         "append": "Do not use subagents unless instructed."
       }
     ]
