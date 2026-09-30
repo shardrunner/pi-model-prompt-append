@@ -107,7 +107,6 @@ function matchesModel(
 	const lowerPattern = pattern.toLowerCase();
 	return (
 		lowerPattern === full.toLowerCase() ||
-		lowerPattern === id.toLowerCase() ||
 		full.toLowerCase().endsWith(`/${lowerPattern}`)
 	);
 }
