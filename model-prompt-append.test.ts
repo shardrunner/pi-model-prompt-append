@@ -38,10 +38,10 @@ function harness(global: unknown, project?: unknown) {
 	vm.createContext(sandbox);
 	vm.runInContext(source, sandbox);
 	(sandbox.register as (pi: unknown) => void)({ on: (_: string, fn: typeof handler) => { handler = fn; } });
-	return async ({ trusted = false, id = "gpt-6-astra", guidelines = [] }: { trusted?: boolean; id?: string; guidelines?: string[] } = {}) => {
+	return async ({ trusted = false, provider = "openai-codex", id = "gpt-6-astra", guidelines = [] }: { trusted?: boolean; provider?: string; id?: string; guidelines?: string[] } = {}) => {
 		await handler!(
 			{ systemPromptOptions: { promptGuidelines: guidelines } },
-			{ cwd: "/project", isProjectTrusted: () => trusted, model: { provider: "openai-codex", id } },
+			{ cwd: "/project", isProjectTrusted: () => trusted, model: { provider, id } },
 		);
 		return guidelines;
 	};
@@ -51,6 +51,18 @@ test("literal and wildcard matching are case insensitive", async () => {
 	for (const pattern of ["GPT-6-ASTRA", "OPENAI-CODEX/GPT-6-ASTRA", "*GPT-6*"]) {
 		assert.deepEqual(await harness(config([rule([pattern])]))(), ["Guideline"]);
 	}
+});
+
+test("virtual selection matches its ID, provider and wildcard rules, not physical targets", async () => {
+	const run = harness(config([
+		rule(["auto"], "Virtual ID"),
+		rule(["jev/auto"], "Virtual selection"),
+		rule(["*"], "Any selection"),
+		rule(["*gpt-6*", "openai/gpt-6-astra"], "Physical target"),
+	]));
+	assert.deepEqual(await run({ provider: "jev", id: "auto" }), [
+		"Virtual ID", "Virtual selection", "Any selection",
+	]);
 });
 
 test("missing settings are inert; project rules require trust and replace global rules", async () => {

@@ -21,8 +21,10 @@
  *
  * - `models`: model matchers. Each entry matches case-insensitively against the
  *   bare model id (`gpt-6-astra`) and the qualified `provider/id`
- *   (`openai-codex/gpt-6-astra`). `*` works as a wildcard. A plain entry without
+ *   (`openai/gpt-6-astra`). `*` works as a wildcard. A plain entry without
  *   `*` also matches as a suffix (`.../gpt-6-astra`), mirroring privacy-guard.ts.
+ *   Matching uses the selected `ctx.model` at `before_agent_start`, before physical
+ *   routing. Virtual-model rules apply across routes, not per physical target.
  * - `append`: a single guideline string or an array of them. Each line is pushed
  *   onto `systemPromptOptions.promptGuidelines`, so it composes with other
  *   extensions (e.g. privacy-guard.ts) that push their own guidelines.

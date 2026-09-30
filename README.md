@@ -46,11 +46,17 @@ replaces global rules; `[]` disables them).
 
 - `models`: model matchers. Each entry matches case-insensitively against the
   bare model id (`gpt-6-astra`) and the qualified `provider/id`
-  (`openai-codex/gpt-6-astra`). `*` works as a wildcard. A plain entry without
-  `*` also matches as a suffix (`.../gpt-6-astra`).
+  (`openai/gpt-6-astra`). `*` works as a wildcard. A plain entry without
+  `*` also matches as a suffix (`.../gpt-6-astra`). Qualified patterns distinguish
+  `openai` from the legacy `openai-codex` provider; bare IDs match either.
 - `append`: a single guideline string or an array of them. Each line is pushed
   onto `systemPromptOptions.promptGuidelines`, so it composes with other
   extensions (e.g. privacy-guard) that push their own guidelines.
+
+Rules match the selected `ctx.model` at `before_agent_start`, before physical
+routing. With Pi 0.99.0 virtual models, a `jev/auto` rule applies across its
+routes; `openai/gpt-6-astra` does not match just because it is a route target.
+Rules are not reevaluated for each routed request.
 
 No settings -> no rules -> extension is inert (defaults empty). Invalid
 settings report an extension error; no guidelines are applied. The handler is
