@@ -1,6 +1,6 @@
 # pi-model-prompt-append
 
-> **Disclaimer:** This extension is vibe coded. Use at your own risk.
+> **Disclaimer:** This extension is vibe coded for personal use. Use at your own risk.
 
 Append custom system-prompt guidelines for specific models in
 [Pi](https://pi.dev). Advisory instructions, not tool enforcement. Inert
