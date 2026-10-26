@@ -2,37 +2,45 @@
 
 > **Disclaimer:** This extension is vibe coded for personal use. Use at your own risk.
 
-Keep model-specific preferences out of repeated prompts. This [Pi](https://pi.dev)
-extension appends configured system-prompt guidelines when the selected model
-matches a rule. Guidelines are advisory instructions, not tool enforcement.
-Inert without settings.
+Keep model-specific preferences out of your prompts. This [Pi](https://pi.dev)
+extension adds configured system-prompt guidelines whenever the selected model
+matches a rule.
 
-## Install
+## Why
 
-Requires **Pi 0.87.1+** and **Node.js 24+**. Development dependencies pin 0.87.1;
-newer Pi versions are intended targets, not a guarantee against upstream API changes.
+- Some models need standing instructions that others don't (for example "don't use subagents"). Repeating them in every prompt is tedious and easy to forget.
 
-Install from GitHub; Pi clones it and `pi update --extensions` keeps it current:
+## Features
+
+- Model rules with wildcards. A rule can match the bare model ID or `provider/id`.
+- Global settings, with an optional override for trusted projects.
+- Only adds guidelines and never replaces existing ones, so it works alongside other
+  extensions that add their own.
+- Does nothing until configured. Invalid settings are reported, not silently ignored.
+
+## Installation
+
+Requires **Pi 0.87.1+** and **Node.js 24+**.
 
 ```sh
 pi install git:github.com/shardrunner/pi-model-prompt-append
 ```
 
-For development, register a local checkout instead:
+Run `/reload` in open Pi sessions. Update with `pi update --extensions`.
+For local development, install a checkout instead
+(`pi install /absolute/path/to/pi-model-prompt-append`). No runtime dependencies,
+no build step.
 
-```sh
-pi install /absolute/path/to/pi-model-prompt-append
-```
+## Usage
 
-Pi loads a local package in place (no copy) and this package has no runtime
-dependencies, so no `npm install` is needed to use it. Run `/reload` in existing
-Pi instances.
+Add rules to your settings (see below). From the next agent run onward, every matching
+model gets the configured guidelines in its system prompt.
 
-## Configure
+## Configuration
 
-Global `~/.pi/agent/settings.json`, optional trusted-project `.pi/settings.json`
-override (same pattern as privacy-guard: an explicit project rules array
-replaces global rules; `[]` disables them).
+Add rules to the global `~/.pi/agent/settings.json`. A trusted project's
+`.pi/settings.json` can override them: a project `rules` array replaces the global one,
+and `[]` turns them off.
 
 ```json
 {
@@ -47,24 +55,22 @@ replaces global rules; `[]` disables them).
 }
 ```
 
-- `models`: model matchers. Each entry matches case-insensitively against the
-  bare model id (`gpt-6-astra`) and the qualified `provider/id`
-  (`openai/gpt-6-astra`). `*` works as a wildcard. A plain entry without
-  `*` also matches as a suffix (`.../gpt-6-astra`). Qualified patterns distinguish
-  `openai` from the legacy `openai-codex` provider; bare IDs match either.
-- `append`: a single guideline string or an array of them. Each line is pushed
-  onto `systemPromptOptions.promptGuidelines`, so it composes with other
-  extensions (e.g. privacy-guard) that push their own guidelines.
+- `models`: matched case-insensitively against the bare model ID (`gpt-6-astra`) and
+  `provider/id` (`openai/gpt-6-astra`). `*` is a wildcard. An entry without `*` also
+  matches as a suffix. `provider/id` patterns tell `openai` apart from `openai-codex`;
+  bare IDs match both.
+- `append`: one guideline string, or an array of them. Each line is added to
+  `systemPromptOptions.promptGuidelines`.
 
-Rules match the selected `ctx.model` at `before_agent_start`, before physical
-routing. With Pi 0.99.0 virtual models, a `jev/auto` rule applies across its
-routes; `openai/gpt-6-astra` does not match just because it is a route target.
-Rules are not reevaluated for each routed request.
+## Behavior and limitations
 
-No settings -> no rules -> extension is inert (defaults empty). Invalid
-settings report an extension error; no guidelines are applied. The handler is
-push-only: it never replaces `promptGuidelines`, so concurrent appenders keep
-working regardless of handler order.
+- Guidelines are instructions to the model, not enforced rules.
+- Rules are checked against the selected model when the agent starts, before routing.
+  With Pi 0.99.0 virtual models, a rule for `jev/auto` applies to every model it routes
+  to, but a rule for `openai/gpt-6-astra` does not match just because that model is one
+  of the routes. Rules are not rechecked for each routed request.
+- Without settings, the extension does nothing. With invalid settings, it reports an
+  extension error and adds no guidelines.
 
 ## Development
 
@@ -74,9 +80,10 @@ npm run check
 npm pack --dry-run
 ```
 
-The small offline suite exercises the extension handler with mocked
-Pi/configuration APIs, without invoking a provider. Only the entry point,
-README, and license ship. No build step is needed; Pi supplies its SDK at
-runtime.
+Requires Node.js 24+. The offline test suite runs the extension with mocked Pi and
+settings APIs and makes no provider calls. Only the entry point, README and license are
+published.
 
-[MIT](LICENSE) © 2026 Michael Brunner.
+## License
+
+[MIT](LICENSE) © 2026 Michael Brunner
