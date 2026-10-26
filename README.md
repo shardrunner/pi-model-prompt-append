@@ -1,10 +1,9 @@
 # pi-model-prompt-append
 
-> **Disclaimer:** This extension is vibe coded for personal use. Use at your own risk.
-
-Append custom system-prompt guidelines for specific models in
-[Pi](https://pi.dev). Advisory instructions, not tool enforcement. Inert
-without settings.
+Keep model-specific preferences out of repeated prompts. This [Pi](https://pi.dev)
+extension appends configured system-prompt guidelines when the selected model
+matches a rule. Guidelines are advisory instructions, not tool enforcement.
+Inert without settings.
 
 ## Install
 
@@ -64,6 +63,11 @@ No settings -> no rules -> extension is inert (defaults empty). Invalid
 settings report an extension error; no guidelines are applied. The handler is
 push-only: it never replaces `promptGuidelines`, so concurrent appenders keep
 working regardless of handler order.
+
+## Project status
+
+Developed with AI assistance for personal use. Provided as-is, without support or
+compatibility guarantees. Review the source and documented limitations before use.
 
 ## Development
 
